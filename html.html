@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e0f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: #26a69a;
+            color: #fff;
+            padding: 1em;
+            text-align: center;
+            border-bottom: 5px solid #004d40;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        main {
+            width: 80%;
+            margin: 2em 0;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1em;
+        }
+
+        input, textarea, button {
+            margin: 0.5em;
+            padding: 0.5em;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid #004d40;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #004d40;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #00796b;
+        }
+
+        .content-container {
+            display: grid;
+            gap: 1em;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            overflow-y: auto;
+            max-height: 400px;
+            scroll-behavior: smooth;
+        }
+
+        .shared-content {
+            background-color: #ffffff;
+            padding: 1.5em;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .shared-content:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        footer {
+            margin-top: 2em;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 2em;
+        }
+
+        /* Developer card animation styles */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .developer-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1em;
+            background-color: #787FF6;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInDown 0.5s ease;
+        }
+
+        .developer-card:hover {
+            transform: scale(1.05);
+        }
+
+        .developer-info {
+            margin-top: 1em;
+            text-align: center;
+        }
+
+        .developer-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1em;
+        }
+    </style>
+    <title>Shared: A Window to Collective Creativity</title>
+</head>
+<body>
+    <header>
+        <h1>Shared: A Window to Collective Creativity</h1>
+    </header>
+    <main>
+        <form id="shareForm">
+            <label for="content">Share something:</label>
+            <textarea id="content" name="content" required></textarea>
+            <button type="button" onclick="shareContent()">Share</button>
+        </form>
+        <div class="content-container" id="contentContainer"></div>
+    </main>
+
+    <!-- Developer Information Section -->
+    <footer>
+        <div class="developer-card">
+            <img src="content://com.android.providers.media.documents/document/image%3A1000055031" alt="Developer Avatar" class="developer-avatar">
+            <h2>[Your Name]</h2>
+            <p class="developer-info">Passionate Developer crafting digital experiences with love and creativity. Let's connect!</p>
+            <p>Contact: <a href="mailto:your.email@example.com">your.email@example.com</a></p>
+            <p>Portfolio: <a href="https://yourportfolio.com" target="_blank">yourportfolio.com</a></p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Load previously shared content from localStorage
+            loadSharedContent();
+        });
+
+        // Add a fade-in animation for shared content
+        function shareContent() {
+            const contentInput = document.getElementById("content");
+            const content = contentInput.value.trim();
+
+            if (content !== "") {
+                // Save content to localStorage
+                saveToLocalStorage(content);
+
+                // Update UI with scrolling animation
+                loadSharedContent();
+                
+                // Clear the input field
+                contentInput.value = "";
+            }
+        }
+
+        // Add a scroll animation when loading shared content
+        function loadSharedContent() {
+            const contentContainer = document.getElementById("contentContainer");
+            const existingContent = JSON.parse(localStorage.getItem("sharedContent")) || [];
+
+            // Clear the existing content in the UI
+            contentContainer.innerHTML = "";
+
+            // Populate UI with content from localStorage
+            existingContent.forEach((content) => {
+                const sharedContentDiv = document.createElement("div");
+                sharedContentDiv.className = "shared-content";
+                sharedContentDiv.textContent = content;
+                contentContainer.appendChild(sharedContentDiv);
+            });
+
+            // Scroll to the bottom with animation
+            contentContainer.scrollTop = contentContainer.scrollHeight;
+        }
+
+        // Corrected saveToLocalStorage function
+        function saveToLocalStorage(content) {
+            // Get existing content from localStorage or initialize an empty array
+            const existingContent = JSON.parse(localStorage.getItem("sharedContent")) || [];
+
+            // Add new content to the array
+            existingContent.push(content);
+
+            // Save the updated array back to localStorage
+            localStorage.setItem("sharedContent", JSON.stringify(existingContent));
+        }
+    </script>
+</body>
+</html>

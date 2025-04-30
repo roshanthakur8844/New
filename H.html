@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Keystone Application Generator</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(-45deg, #ecf0f1, #dfe6e9, #b2bec3, #dfe6e9);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 30px;
+      background: #ffffffd9;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #2c3e50;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #2980b9;
+      outline: none;
+      box-shadow: 0 0 5px rgba(41, 128, 185, 0.5);
+    }
+
+    button {
+      padding: 12px;
+      width: 100%;
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1c5980;
+    }
+
+    #output {
+      display: none;
+      margin-top: 30px;
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+    }
+
+    .letterhead {
+      text-align: center;
+      border-bottom: 2px solid black;
+      padding-bottom: 10px;
+    }
+
+    .signature {
+      margin-top: 50px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Keystone Application Generator</h1>
+    <form id="appForm">
+      <input type="text" placeholder="Your Full Name" id="name" required />
+      <input type="text" placeholder="Roll Number" id="roll" required />
+      <input type="text" placeholder="Department (e.g. Computer)" id="dept" required />
+      <input type="text" placeholder="Application Subject" id="subject" required />
+      <textarea placeholder="Write your application content here..." id="message" rows="6" required></textarea>
+      <button type="submit">Generate Application</button>
+    </form>
+
+    <div id="output">
+      <div class="letterhead">
+        <img id="collegeLogo" src="https://www.mycampusreview.com/images/college/1694775193keystonee180.png" width="80" style="float:left; margin-right: 10px;" />
+        <div>
+          <div>Shalaka Foundation’s<br><strong>KEYSTONE SCHOOL OF ENGINEERING</strong></div>
+          <small>Near Handewadi Chowk, Uruli Devachi, Pune – 412308<br>Email: foundation@shalaka.org | Web: www.shalakafoundation.com</small>
+          <hr />
+          <small>Approved by AICTE, Government of Maharashtra & Affiliated to University of Pune.</small>
+        </div>
+      </div>
+      <br>
+      <p>Date: <span id="todayDate"></span></p>
+      <p>To,<br>The Principal,<br>Keystone School of Engineering,<br>Pune.</p>
+      <p>Subject: <strong><span id="subOut"></span></strong></p>
+      <p>Respected Sir/Madam,</p>
+      <p id="msgOut"></p>
+      <p>Thanking you,<br>Yours faithfully,<br><span id="signOut"></span><br>Roll No: <span id="rollOut"></span><br>Dept: <span id="deptOut"></span></p>
+      <div class="signature"><strong>Principal</strong></div>
+      <button onclick="downloadPDF()">Download PDF</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const form = document.getElementById("appForm");
+    const output = document.getElementById("output");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const roll = document.getElementById("roll").value;
+      const dept = document.getElementById("dept").value;
+      const subject = document.getElementById("subject").value;
+      const message = document.getElementById("message").value;
+
+      document.getElementById("subOut").textContent = subject;
+      document.getElementById("msgOut").textContent = message;
+      document.getElementById("signOut").textContent = name;
+      document.getElementById("rollOut").textContent = roll;
+      document.getElementById("deptOut").textContent = dept;
+      document.getElementById("todayDate").textContent = new Date().toLocaleDateString();
+
+      output.style.display = "block";
+    });
+
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF("p", "pt", "a4");
+
+      const logo = document.getElementById("collegeLogo").src;
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.src = logo;
+
+      img.onload = function () {
+        doc.addImage(img, "PNG", 40, 30, 60, 60);
+
+        doc.setFontSize(12);
+        doc.text("Shalaka Foundation’s", 120, 40);
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.text("KEYSTONE SCHOOL OF ENGINEERING", 120, 60);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        doc.text("Near Handewadi Chowk, Uruli Devachi, Pune – 412308", 120, 75);
+        doc.text("Email: foundation@shalaka.org | Web: www.shalakafoundation.com", 120, 90);
+        doc.line(40, 100, 555, 100);
+
+        let y = 130;
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 40, y);
+        y += 30;
+        doc.text("To,\nThe Principal,\nKeystone School of Engineering,\nPune.", 40, y);
+        y += 80;
+        doc.setFont(undefined, 'bold');
+        doc.text(`Subject: ${document.getElementById("subOut").textContent}`, 40, y);
+        doc.setFont(undefined, 'normal');
+        y += 30;
+        doc.text("Respected Sir/Madam,", 40, y);
+        y += 20;
+
+        const msg = document.getElementById("msgOut").textContent;
+        const lines = doc.splitTextToSize(msg, 500);
+        doc.text(lines, 40, y);
+        y += lines.length * 15 + 30;
+
+        doc.text("Thanking you,", 40, y);
+        y += 15;
+        doc.text("Yours faithfully,", 40, y);
+        y += 15;
+        doc.text(document.getElementById("signOut").textContent, 40, y);
+        y += 15;
+        doc.text("Roll No: " + document.getElementById("rollOut").textContent, 40, y);
+        y += 15;
+        doc.text("Dept: " + document.getElementById("deptOut").textContent, 40, y);
+        y += 40;
+
+        doc.text("Principal", 440, y);
+
+        doc.save("keystone_application.pdf");
+      };
+    }
+  </script>
+</body>
+</html>

@@ -5,94 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Keystone Application Generator</title>
   <style>
-    /* Styles same as before... */
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(-45deg, #ecf0f1, #dfe6e9, #b2bec3, #dfe6e9);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-    }
-
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 30px;
-      background: #ffffffd9;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
-      animation: fadeIn 1s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 25px;
-      color: #2c3e50;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 12px;
-      margin-top: 12px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-      transition: all 0.3s ease;
-    }
-
-    input:focus, textarea:focus {
-      border-color: #2980b9;
-      outline: none;
-      box-shadow: 0 0 5px rgba(41, 128, 185, 0.5);
-    }
-
-    button {
-      padding: 12px;
-      width: 100%;
-      background-color: #2980b9;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 18px;
-      margin-top: 20px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #1c5980;
-    }
-
-    #output {
-      display: none;
-      margin-top: 30px;
-      background: #fff;
-      padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-    }
-
-    .letterhead {
-      text-align: center;
-      border-bottom: 2px solid black;
-      padding-bottom: 10px;
-    }
-
-    .signature {
-      margin-top: 50px;
-      text-align: right;
-    }
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
@@ -198,7 +110,7 @@
       <div class="letterhead">
         <img id="collegeLogo" src="https://www.mycampusreview.com/images/college/1694775193keystonee180.png" width="80" style="float:left; margin-right: 10px;" />
         <div>
-          <div>Shalaka Foundation’s<br><strong>KEYSTONE SCHOOL OF ENGINEERING</strong></div>
+          <div>Shalaka Foundation's<br><strong>KEYSTONE SCHOOL OF ENGINEERING</strong></div>
           <small>Near Handewadi Chowk, Uruli Devachi, Pune – 412308<br>Email: foundation@shalaka.org | Web: www.shalakafoundation.com</small>
           <hr />
           <small>Approved by AICTE, Government of Maharashtra & Affiliated to University of Pune.</small>
@@ -212,12 +124,15 @@
       <p id="msgOut"></p>
       <p>Thanking you,<br>Yours faithfully,<br><span id="signOut"></span><br>Roll No: <span id="rollOut"></span><br>Dept: <span id="deptOut"></span></p>
       <div class="signature"><strong>Principal</strong></div>
-      <button onclick="downloadPDF()">Download PDF</button>
+      <button type="button" onclick="downloadPDF()">Download PDF</button>
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
+    // Initialize jsPDF
+    const { jsPDF } = window.jspdf;
+
     const form = document.getElementById("appForm");
     const output = document.getElementById("output");
 
@@ -240,63 +155,81 @@
     });
 
     async function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF("p", "pt", "a4");
-
-      const logoUrl = document.getElementById("collegeLogo").src;
-      const toBase64 = url => fetch(url)
-        .then(res => res.blob())
-        .then(blob => new Promise((resolve, reject) => {
+      try {
+        const doc = new jsPDF();
+        
+        // Add logo
+        const logoUrl = document.getElementById("collegeLogo").src;
+        const logoResponse = await fetch(logoUrl);
+        const logoBlob = await logoResponse.blob();
+        const logoDataUrl = await new Promise((resolve) => {
           const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        }));
-
-      const base64Logo = await toBase64(logoUrl);
-
-      doc.addImage(base64Logo, "PNG", 40, 30, 60, 60);
-      doc.setFontSize(12);
-      doc.text("Shalaka Foundation’s", 120, 40);
-      doc.setFontSize(16);
-      doc.setFont(undefined, 'bold');
-      doc.text("KEYSTONE SCHOOL OF ENGINEERING", 120, 60);
-      doc.setFontSize(10);
-      doc.setFont(undefined, 'normal');
-      doc.text("Near Handewadi Chowk, Uruli Devachi, Pune – 412308", 120, 75);
-      doc.text("Email: foundation@shalaka.org | Web: www.shalakafoundation.com", 120, 90);
-      doc.line(40, 100, 555, 100);
-
-      let y = 130;
-      doc.text(`Date: ${new Date().toLocaleDateString()}`, 40, y);
-      y += 30;
-      doc.text("To,\nThe Principal,\nKeystone School of Engineering,\nPune.", 40, y);
-      y += 80;
-      doc.setFont(undefined, 'bold');
-      doc.text(`Subject: ${document.getElementById("subOut").textContent}`, 40, y);
-      doc.setFont(undefined, 'normal');
-      y += 30;
-      doc.text("Respected Sir/Madam,", 40, y);
-      y += 20;
-
-      const msg = document.getElementById("msgOut").textContent;
-      const lines = doc.splitTextToSize(msg, 500);
-      doc.text(lines, 40, y);
-      y += lines.length * 15 + 30;
-
-      doc.text("Thanking you,", 40, y);
-      y += 15;
-      doc.text("Yours faithfully,", 40, y);
-      y += 15;
-      doc.text(document.getElementById("signOut").textContent, 40, y);
-      y += 15;
-      doc.text("Roll No: " + document.getElementById("rollOut").textContent, 40, y);
-      y += 15;
-      doc.text("Dept: " + document.getElementById("deptOut").textContent, 40, y);
-      y += 40;
-
-      doc.text("Principal", 440, y);
-      doc.save("keystone_application.pdf");
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(logoBlob);
+        });
+        
+        doc.addImage(logoDataUrl, 'PNG', 15, 10, 30, 30);
+        
+        // Add college information
+        doc.setFontSize(12);
+        doc.text("Shalaka Foundation's", 55, 15);
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.text("KEYSTONE SCHOOL OF ENGINEERING", 55, 25);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        doc.text("Near Handewadi Chowk, Uruli Devachi, Pune – 412308", 55, 35);
+        doc.text("Email: foundation@shalaka.org | Web: www.shalakafoundation.com", 55, 45);
+        doc.line(15, 55, 195, 55);
+        doc.setFontSize(8);
+        doc.text("Approved by AICTE, Government of Maharashtra & Affiliated to University of Pune.", 15, 60);
+        
+        // Add application content
+        doc.setFontSize(12);
+        let y = 70;
+        doc.text(`Date: ${document.getElementById("todayDate").textContent}`, 15, y);
+        y += 10;
+        doc.text("To,", 15, y);
+        y += 5;
+        doc.text("The Principal,", 15, y);
+        y += 5;
+        doc.text("Keystone School of Engineering,", 15, y);
+        y += 5;
+        doc.text("Pune.", 15, y);
+        y += 10;
+        
+        doc.setFont(undefined, 'bold');
+        doc.text(`Subject: ${document.getElementById("subOut").textContent}`, 15, y);
+        doc.setFont(undefined, 'normal');
+        y += 10;
+        
+        doc.text("Respected Sir/Madam,", 15, y);
+        y += 10;
+        
+        const message = document.getElementById("msgOut").textContent;
+        const splitMessage = doc.splitTextToSize(message, 180);
+        doc.text(splitMessage, 15, y);
+        y += splitMessage.length * 6 + 10;
+        
+        doc.text("Thanking you,", 15, y);
+        y += 5;
+        doc.text("Yours faithfully,", 15, y);
+        y += 5;
+        doc.text(document.getElementById("signOut").textContent, 15, y);
+        y += 5;
+        doc.text(`Roll No: ${document.getElementById("rollOut").textContent}`, 15, y);
+        y += 5;
+        doc.text(`Dept: ${document.getElementById("deptOut").textContent}`, 15, y);
+        y += 15;
+        
+        doc.text("Principal", 160, y);
+        
+        // Save the PDF
+        doc.save("keystone_application.pdf");
+      } catch (error) {
+        console.error("Error generating PDF:", error);
+        alert("Error generating PDF. Please try again.");
+      }
     }
   </script>
 </body>

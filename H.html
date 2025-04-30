@@ -152,61 +152,68 @@
     });
 
     async function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF("p", "pt", "a4");
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("p", "pt", "a4");
 
-      const logo = document.getElementById("collegeLogo").src;
-      const img = new Image();
-      img.crossOrigin = "Anonymous";
-      img.src = logo;
+  const logoUrl = document.getElementById("collegeLogo").src;
 
-      img.onload = function () {
-        doc.addImage(img, "PNG", 40, 30, 60, 60);
+  // Load logo image as base64
+  const toBase64 = url => fetch(url)
+    .then(res => res.blob())
+    .then(blob => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    }));
 
-        doc.setFontSize(12);
-        doc.text("Shalaka Foundation’s", 120, 40);
-        doc.setFontSize(16);
-        doc.setFont(undefined, 'bold');
-        doc.text("KEYSTONE SCHOOL OF ENGINEERING", 120, 60);
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
-        doc.text("Near Handewadi Chowk, Uruli Devachi, Pune – 412308", 120, 75);
-        doc.text("Email: foundation@shalaka.org | Web: www.shalakafoundation.com", 120, 90);
-        doc.line(40, 100, 555, 100);
+  const base64Logo = await toBase64(logoUrl);
 
-        let y = 130;
-        doc.text(`Date: ${new Date().toLocaleDateString()}`, 40, y);
-        y += 30;
-        doc.text("To,\nThe Principal,\nKeystone School of Engineering,\nPune.", 40, y);
-        y += 80;
-        doc.setFont(undefined, 'bold');
-        doc.text(`Subject: ${document.getElementById("subOut").textContent}`, 40, y);
-        doc.setFont(undefined, 'normal');
-        y += 30;
-        doc.text("Respected Sir/Madam,", 40, y);
-        y += 20;
+  // Add logo and content
+  doc.addImage(base64Logo, "PNG", 40, 30, 60, 60);
+  doc.setFontSize(12);
+  doc.text("Shalaka Foundation’s", 120, 40);
+  doc.setFontSize(16);
+  doc.setFont(undefined, 'bold');
+  doc.text("KEYSTONE SCHOOL OF ENGINEERING", 120, 60);
+  doc.setFontSize(10);
+  doc.setFont(undefined, 'normal');
+  doc.text("Near Handewadi Chowk, Uruli Devachi, Pune – 412308", 120, 75);
+  doc.text("Email: foundation@shalaka.org | Web: www.shalakafoundation.com", 120, 90);
+  doc.line(40, 100, 555, 100);
 
-        const msg = document.getElementById("msgOut").textContent;
-        const lines = doc.splitTextToSize(msg, 500);
-        doc.text(lines, 40, y);
-        y += lines.length * 15 + 30;
+  let y = 130;
+  doc.text(`Date: ${new Date().toLocaleDateString()}`, 40, y);
+  y += 30;
+  doc.text("To,\nThe Principal,\nKeystone School of Engineering,\nPune.", 40, y);
+  y += 80;
+  doc.setFont(undefined, 'bold');
+  doc.text(`Subject: ${document.getElementById("subOut").textContent}`, 40, y);
+  doc.setFont(undefined, 'normal');
+  y += 30;
+  doc.text("Respected Sir/Madam,", 40, y);
+  y += 20;
 
-        doc.text("Thanking you,", 40, y);
-        y += 15;
-        doc.text("Yours faithfully,", 40, y);
-        y += 15;
-        doc.text(document.getElementById("signOut").textContent, 40, y);
-        y += 15;
-        doc.text("Roll No: " + document.getElementById("rollOut").textContent, 40, y);
-        y += 15;
-        doc.text("Dept: " + document.getElementById("deptOut").textContent, 40, y);
-        y += 40;
+  const msg = document.getElementById("msgOut").textContent;
+  const lines = doc.splitTextToSize(msg, 500);
+  doc.text(lines, 40, y);
+  y += lines.length * 15 + 30;
 
-        doc.text("Principal", 440, y);
+  doc.text("Thanking you,", 40, y);
+  y += 15;
+  doc.text("Yours faithfully,", 40, y);
+  y += 15;
+  doc.text(document.getElementById("signOut").textContent, 40, y);
+  y += 15;
+  doc.text("Roll No: " + document.getElementById("rollOut").textContent, 40, y);
+  y += 15;
+  doc.text("Dept: " + document.getElementById("deptOut").textContent, 40, y);
+  y += 40;
 
-        doc.save("keystone_application.pdf");
-      };
-    }
+  doc.text("Principal", 440, y);
+
+  doc.save("keystone_application.pdf");
+                              }
   </script>
 </body>
 </html>

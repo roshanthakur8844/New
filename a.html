@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Keystone Document Generator</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(-45deg, #ecf0f1, #dfe6e9, #b2bec3, #dfe6e9);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 30px;
+      background: #ffffffd9;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #2c3e50;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #2980b9;
+      outline: none;
+      box-shadow: 0 0 5px rgba(41, 128, 185, 0.5);
+    }
+
+    button {
+      padding: 12px;
+      width: 100%;
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1c5980;
+    }
+
+    #output {
+      display: none;
+      margin-top: 30px;
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+    }
+
+    .letterhead {
+      text-align: center;
+      border-bottom: 2px solid black;
+      padding-bottom: 10px;
+    }
+
+    .signature {
+      margin-top: 50px;
+      text-align: right;
+    }
+
+    .tab-container {
+      display: flex;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      background: #ddd;
+      cursor: pointer;
+      border-radius: 5px 5px 0 0;
+      margin-right: 5px;
+    }
+
+    .tab.active {
+      background: #2980b9;
+      color: white;
+    }
+
+    .form-section {
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Keystone Document Generator</h1>
+    
+    <div class="tab-container">
+      <div class="tab active" onclick="switchTab('application')">Student Application</div>
+      <div class="tab" onclick="switchTab('notice')">HOD Notice</div>
+    </div>
+    
+    <!-- Student Application Form -->
+    <form id="appForm" class="form-section active">
+      <input type="text" placeholder="Your Full Name" id="name" required />
+      <input type="text" placeholder="Roll Number" id="roll" required />
+      <input type="text" placeholder="Department (e.g. Computer)" id="dept" required />
+      <input type="text" placeholder="Application Subject" id="subject" required />
+      <textarea placeholder="Write your application content here..." id="message" rows="6" required></textarea>
+      <button type="submit">Generate Application</button>
+    </form>
+    
+    <!-- HOD Notice Form -->
+    <form id="noticeForm" class="form-section">
+      <input type="text" placeholder="HOD Name" id="hodName" required />
+      <input type="text" placeholder="Department" id="hodDept" required />
+      <input type="text" placeholder="Notice Subject" id="noticeSubject" required />
+      <textarea placeholder="Write your notice content here..." id="noticeMessage" rows="6" required></textarea>
+      <input type="text" placeholder="Recipients (e.g. All Students, Faculty)" id="recipients" required />
+      <button type="submit">Generate Notice</button>
+    </form>
+
+    <div id="output">
+      <div class="letterhead">
+        <img id="collegeLogo" src="https://www.mycampusreview.com/images/college/1694775193keystonee180.png" width="80" style="float:left; margin-right: 10px;" />
+        <div>
+          <div>Shalaka Foundation's<br><strong>KEYSTONE SCHOOL OF ENGINEERING</strong></div>
+          <small>Near Handewadi Chowk, Uruli Devachi, Pune – 412308<br>Email: foundation@shalaka.org | Web: www.shalakafoundation.com</small>
+          <hr />
+          <small>Approved by AICTE, Government of Maharashtra & Affiliated to University of Pune.</small>
+        </div>
+      </div>
+      <br>
+      <p>Date: <span id="todayDate"></span></p>
+      <div id="recipientSection">
+        <p>To,<br>The Principal,<br>Keystone School of Engineering,<br>Pune.</p>
+      </div>
+      <p>Subject: <strong><span id="subOut"></span></strong></p>
+      <p id="salutation">Respected Sir/Madam,</p>
+      <p id="msgOut"></p>
+      <div id="closingSection">
+        <p>Thanking you,<br>Yours faithfully,<br><span id="signOut"></span><br>Roll No: <span id="rollOut"></span><br>Dept: <span id="deptOut"></span></p>
+      </div>
+      <div class="signature" id="signatureSection"><strong>Principal</strong></div>
+      <button type="button" onclick="downloadPDF()">Download PDF</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    // Initialize jsPDF
+    const { jsPDF } = window.jspdf;
+
+    const appForm = document.getElementById("appForm");
+    const noticeForm = document.getElementById("noticeForm");
+    const output = document.getElementById("output");
+
+    function switchTab(tabName) {
+      // Update tabs
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      if (tabName === 'application') {
+        document.querySelectorAll('.tab')[0].classList.add('active');
+      } else {
+        document.querySelectorAll('.tab')[1].classList.add('active');
+      }
+      
+      // Update forms
+      document.querySelectorAll('.form-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      document.getElementById(tabName + 'Form').classList.add('active');
+      
+      // Hide output when switching tabs
+      output.style.display = "none";
+    }
+
+    appForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      generateDocument('application');
+    });
+
+    noticeForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      generateDocument('notice');
+    });
+
+    function generateDocument(type) {
+      if (type === 'application') {
+        const name = document.getElementById("name").value;
+        const roll = document.getElementById("roll").value;
+        const dept = document.getElementById("dept").value;
+        const subject = document.getElementById("subject").value;
+        const message = document.getElementById("message").value;
+
+        document.getElementById("subOut").textContent = subject;
+        document.getElementById("msgOut").textContent = message;
+        document.getElementById("signOut").textContent = name;
+        document.getElementById("rollOut").textContent = roll;
+        document.getElementById("deptOut").textContent = dept;
+        document.getElementById("todayDate").textContent = new Date().toLocaleDateString();
+        
+        // Show student-specific sections
+        document.getElementById("recipientSection").innerHTML = `<p>To,<br>The Principal,<br>Keystone School of Engineering,<br>Pune.</p>`;
+        document.getElementById("salutation").textContent = "Respected Sir/Madam,";
+        document.getElementById("closingSection").innerHTML = `<p>Thanking you,<br>Yours faithfully,<br><span id="signOut">${name}</span><br>Roll No: <span id="rollOut">${roll}</span><br>Dept: <span id="deptOut">${dept}</span></p>`;
+        document.getElementById("signatureSection").innerHTML = `<strong>Principal</strong>`;
+      } else {
+        const hodName = document.getElementById("hodName").value;
+        const hodDept = document.getElementById("hodDept").value;
+        const noticeSubject = document.getElementById("noticeSubject").value;
+        const noticeMessage = document.getElementById("noticeMessage").value;
+        const recipients = document.getElementById("recipients").value;
+
+        document.getElementById("subOut").textContent = noticeSubject;
+        document.getElementById("msgOut").textContent = noticeMessage;
+        document.getElementById("todayDate").textContent = new Date().toLocaleDateString();
+        
+        // Show notice-specific sections
+        document.getElementById("recipientSection").innerHTML = `<p>To,<br>${recipients},<br>Department of ${hodDept},<br>Keystone School of Engineering.</p>`;
+        document.getElementById("salutation").textContent = "";
+        document.getElementById("closingSection").innerHTML = `<p>${hodName}<br>Head of Department<br>Department of ${hodDept}</p>`;
+        document.getElementById("signatureSection").innerHTML = ``;
+      }
+
+      output.style.display = "block";
+      // Scroll to output
+      output.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function downloadPDF() {
+      try {
+        const doc = new jsPDF();
+        
+        // Add logo
+        const logoUrl = document.getElementById("collegeLogo").src;
+        const logoResponse = await fetch(logoUrl);
+        const logoBlob = await logoResponse.blob();
+        const logoDataUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(logoBlob);
+        });
+        
+        doc.addImage(logoDataUrl, 'PNG', 15, 10, 30, 30);
+        
+        // Add college information
+        doc.setFontSize(12);
+        doc.text("Shalaka Foundation's", 55, 15);
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.text("KEYSTONE SCHOOL OF ENGINEERING", 55, 25);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        doc.text("Near Handewadi Chowk, Uruli Devachi, Pune – 412308", 55, 35);
+        doc.text("Email: foundation@shalaka.org | Web: www.shalakafoundation.com", 55, 45);
+        doc.line(15, 55, 195, 55);
+        doc.setFontSize(8);
+        doc.text("Approved by AICTE, Government of Maharashtra & Affiliated to University of Pune.", 15, 60);
+        
+        // Add document content
+        doc.setFontSize(12);
+        let y = 70;
+        doc.text(`Date: ${document.getElementById("todayDate").textContent}`, 15, y);
+        y += 10;
+        
+        // Recipient section
+        const recipientLines = document.getElementById("recipientSection").textContent.split('\n');
+        for (let line of recipientLines) {
+          line = line.trim();
+          if (line) {
+            doc.text(line, 15, y);
+            y += 5;
+          }
+        }
+        y += 5;
+        
+        // Subject
+        doc.setFont(undefined, 'bold');
+        doc.text(`Subject: ${document.getElementById("subOut").textContent}`, 15, y);
+        doc.setFont(undefined, 'normal');
+        y += 10;
+        
+        // Salutation
+        const salutation = document.getElementById("salutation").textContent;
+        if (salutation) {
+          doc.text(salutation, 15, y);
+          y += 10;
+        }
+        
+        // Main content
+        const message = document.getElementById("msgOut").textContent;
+        const splitMessage = doc.splitTextToSize(message, 180);
+        doc.text(splitMessage, 15, y);
+        y += splitMessage.length * 6 + 10;
+        
+        // Closing section
+        const closingLines = document.getElementById("closingSection").textContent.split('\n');
+        for (let line of closingLines) {
+          line = line.trim();
+          if (line) {
+            doc.text(line, 15, y);
+            y += 5;
+          }
+        }
+        y += 10;
+        
+        // Signature
+        const signature = document.getElementById("signatureSection").textContent;
+        if (signature) {
+          doc.text(signature, 160, y);
+        }
+        
+        // Save the PDF - using different methods for mobile/desktop
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+          // For mobile devices
+          const pdfBlob = doc.output('blob');
+          const pdfUrl = URL.createObjectURL(pdfBlob);
+          
+          // Create a temporary anchor element
+          const a = document.createElement('a');
+          a.href = pdfUrl;
+          a.download = type === 'application' ? 'keystone_application.pdf' : 'keystone_notice.pdf';
+          document.body.appendChild(a);
+          a.click();
+          
+          // Cleanup
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(pdfUrl);
+          }, 100);
+        } else {
+          // For desktop browsers
+          doc.save(type === 'application' ? 'keystone_application.pdf' : 'keystone_notice.pdf');
+        }
+      } catch (error) {
+        console.error("Error generating PDF:", error);
+        alert("Error generating PDF. Please try again.");
+      }
+    }
+  </script>
+</body>
+</html>
